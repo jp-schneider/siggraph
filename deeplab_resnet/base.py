@@ -1,6 +1,7 @@
 import os
 from glob import glob
-import tensorflow as tf
+import tensorflow as tfv2
+import tensorflow.compat.v1 as tf
 
 class Model(object):
   """Abstract object representing an Reader model."""

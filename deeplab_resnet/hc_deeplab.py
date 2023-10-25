@@ -9,10 +9,11 @@ This code is for protyping research ideas; thus, please use this code only for n
 
 import os
 import time
-import tensorflow as tf
+import tensorflow as tfv2
+import tensorflow.compat.v1 as tf
 import numpy as np
 
-from tensorflow.python.keras._impl.keras.initializers import he_normal
+from keras.initializers import he_normal
 from tensorflow.python import debug as tf_debug
 
 from .base import Model
@@ -126,7 +127,7 @@ class HyperColumn_Deeplabv2(Model):
 
 		# TF part: Input feeding
 		self.netcontainer = dict()
-		tinput_img = tf.placeholder(tf.float32,shape=(None,None,3),name='feed_img')
+		tinput_img = tf.compat.v1.placeholder(tf.float32,shape=(None,None,3),name='feed_img')
 		self.netcontainer['input_img'] = tinput_img
 
 		sz_lossmat = (NSAMPLEPTS*NINST,NSAMPLEPTS*NINST)
@@ -136,7 +137,7 @@ class HyperColumn_Deeplabv2(Model):
 		self.netcontainer['input_weightmat'] = tlossweight
 		self.netcontainer['input_samplepts'] = tsample_points
 
-		input_img = tf.expand_dims(tinput_img, dim=0)
+		input_img = tf.expand_dims(tinput_img, axis=0)
 		
 		# Create network.
 		with tf.variable_scope('', reuse=False):
@@ -267,7 +268,7 @@ class HyperColumn_Deeplabv2(Model):
 		pred = tf.cast(tf.image.resize_bilinear(self.netcontainer['out_visimg'], input_size), tf.uint8)
 
 		# Image summary.
-		images_summary = tf.py_func(inv_preprocess, [tf.expand_dims(self.netcontainer['input_img'], dim=0), args.save_num_images, IMG_MEAN], tf.uint8)
+		images_summary = tf.py_func(inv_preprocess, [tf.expand_dims(self.netcontainer['input_img'], axis=0), args.save_num_images, IMG_MEAN], tf.uint8)
 
 		total_summary = tf.summary.image('images', tf.concat(axis=2, values=[images_summary, pred]), 
 												 max_outputs=args.save_num_images) # Concatenate row-wise.
